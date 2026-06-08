@@ -330,6 +330,60 @@ createdAt
 
 ---
 
+# Dashboard
+
+Zusätzlich zur REST API verfügt das Projekt über ein einfaches webbasiertes Dashboard zur Visualisierung und Analyse der Audit-Events.
+
+Das Dashboard ermöglicht:
+
+- Anzeige der neuesten Audit-Events
+
+- Filterung nach:
+
+  - Actor ID
+
+  - Action
+
+  - Resource Type
+
+  - Resource ID
+
+  - Service Name
+
+  - Correlation ID
+
+  - Zeitraum
+
+- Pagination
+
+- Farbige Hervorhebung verschiedener Event-Typen
+
+- Schnelle Analyse von Benutzer- und Systemaktivitäten
+
+## Screenshot
+
+![Audit Dashboard](docs/images/dashboard.png)
+
+### Technische Umsetzung
+
+Das Dashboard wurde mit folgenden Technologien umgesetzt:
+
+- Symfony Controller
+
+- Twig Templates
+
+- Bootstrap 5
+
+- Doctrine ORM
+
+- Filter-DTOs
+
+- Repository Pattern
+
+Ziel des Dashboards ist es, Audit-Daten ohne zusätzliche Tools wie Kibana oder Grafana direkt innerhalb der Anwendung analysieren zu können.
+
+---
+
 # Technologie-Stack
 
 - PHP 8.4
