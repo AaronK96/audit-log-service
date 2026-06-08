@@ -51,7 +51,7 @@ final class AuditEventsController extends AbstractController
         $auditEvent->setAction($dto->action);
         $auditEvent->setResourceId($dto->resourceId);
         $auditEvent->setResourceType($dto->resourceType);
-        $auditEvent->setServiceName($dto->serviceName);
+        $auditEvent->setServiceName($dto->serviceName ? $dto->serviceName : '');
         $auditEvent->setCorrelationId($dto->correlationId);
         $auditEvent->setMetadata($dto->metadata);
         $auditEvent->setCreatedAt(new DateTimeImmutable());
