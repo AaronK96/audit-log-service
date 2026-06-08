@@ -1,0 +1,177 @@
+{# templates/dashboard/index.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Audit Log Dashboard{% endblock %}
+
+{% block body %}
+<div class="container-fluid bg-light min-vh-100 py-4">
+
+    <div class="mb-4">
+        <h1 class="h3 mb-1">Audit Log Dashboard</h1>
+        <p class="text-muted mb-0">Übersicht der letzten Audit Events</p>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="h5 mb-4">Filter</h2>
+
+            <form method="get" action="{{ path('app_dashboard') }}">
+                <div class="row g-3">
+
+                    <div class="col-md-3">
+                        <label class="form-label">Zeitraum von</label>
+                        <input type="datetime-local" name="from" class="form-control"
+                               value="{{ app.request.query.get('from') }}">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Zeitraum bis</label>
+                        <input type="datetime-local" name="to" class="form-control"
+                               value="{{ app.request.query.get('to') }}">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Actor ID</label>
+                        <input type="text" name="actorId" class="form-control"
+                               placeholder="z.B. user-123"
+                               value="{{ app.request.query.get('actorId') }}">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Action</label>
+                        <input type="text" name="action" class="form-control"
+                               placeholder="z.B. USER_CREATED"
+                               value="{{ app.request.query.get('action') }}">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Service</label>
+                        <input type="text" name="serviceName" class="form-control"
+                               placeholder="z.B. user-service"
+                               value="{{ app.request.query.get('serviceName') }}">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Resource Type</label>
+                        <input type="text" name="resourceType" class="form-control"
+                               placeholder="z.B. User"
+                               value="{{ app.request.query.get('resourceType') }}">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Resource ID</label>
+                        <input type="text" name="resourceId" class="form-control"
+                               placeholder="z.B. user-456"
+                               value="{{ app.request.query.get('resourceId') }}">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Correlation ID</label>
+                        <input type="text" name="correlationId" class="form-control"
+                               placeholder="z.B. corr-123456"
+                               value="{{ app.request.query.get('correlationId') }}">
+                    </div>
+
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        Filtern
+                    </button>
+
+                    <a href="{{ path('app_dashboard') }}" class="btn btn-outline-secondary">
+                        Zurücksetzen
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h2 class="h5 mb-0">Letzte Audit Events</h2>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Zeitpunkt</th>
+                        <th>Actor ID</th>
+                        <th>Action</th>
+                        <th>Resource Type</th>
+                        <th>Resource ID</th>
+                        <th>Service</th>
+                        <th>Correlation ID</th>
+                        <th>IP-Adresse</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                        <tr>
+                            <td>{{ event.createdAt|date('d.m.Y H:i:s') }}</td>
+                            <td>{{ event.actorId }}</td>
+                            <td>
+                                {% set action = event.action|upper %}
+
+                                {% set badgeClass = 'text-bg-dark' %}
+
+                                {% if 'FAILED' in action or 'ERROR' in action or 'DELETED' in action or 'CANCELLED' in action %}
+                                    {% set badgeClass = 'text-bg-danger' %}
+                                {% elseif 'CREATED' in action or 'SUCCESS' in action or 'RECEIVED' in action or 'SENT' in action %}
+                                    {% set badgeClass = 'text-bg-success' %}
+                                {% elseif 'UPDATED' in action or 'CHANGED' in action or 'ROTATED' in action %}
+                                    {% set badgeClass = 'text-bg-warning' %}
+                                {% elseif 'STARTED' in action or 'EXPORT' in action %}
+                                    {% set badgeClass = 'text-bg-info' %}
+                                {% elseif 'DISABLED' in action or 'BLOCKED' in action %}
+                                    {% set badgeClass = 'text-bg-secondary' %}
+                                {% endif %}
+
+                                <span class="badge {{ badgeClass }}">
+                                    {{ event.action }}
+                                </span>
+                            </td>
+                            <td>{{ event.resourceType }}</td>
+                            <td>{{ event.resourceId }}</td>
+                            <td>{{ event.serviceName ?? '-' }}</td>
+                            <td>{{ event.correlationId ?? '-' }}</td>
+                            <td>{{ event.ipAddress ?? '-' }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">
+                                Keine Audit Events gefunden.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+            <span class="text-muted">
+                Seite {{ page }} · {{ total }} Einträge
+            </span>
+
+            <div class="btn-group">
+                {% if page > 1 %}
+                    <a class="btn btn-outline-secondary btn-sm"
+                       href="{{ path('app_dashboard', app.request.query.all|merge({ page: page - 1 })) }}">
+                        Zurück
+                    </a>
+                {% endif %}
+
+                {% if page * limit < total %}
+                    <a class="btn btn-outline-secondary btn-sm"
+                       href="{{ path('app_dashboard', app.request.query.all|merge({ page: page + 1 })) }}">
+                        Weiter
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
